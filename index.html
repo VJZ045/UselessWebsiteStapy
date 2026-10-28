@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#eee9dc">
+    <title>Untitled Document — Stapy Writer</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-titlebar" aria-label="Application title bar">
+        <div class="window-controls" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="app-name"><span class="app-mark">S</span> STAPY WRITER <span class="version">’97</span></div>
+        <div class="titlebar-status"><span class="save-light"></span> ALL CHANGES SAVED</div>
+      </header>
+
+      <nav class="menu-bar" aria-label="Document menu">
+        <span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Help</span>
+      </nav>
+
+      <section class="toolbar" aria-label="Formatting toolbar">
+        <div class="toolbar-group">
+          <button class="tool-button" type="button" aria-label="Undo">↶</button>
+          <button class="tool-button" type="button" aria-label="Redo">↷</button>
+        </div>
+        <span class="toolbar-divider"></span>
+        <button class="select-button" type="button">Georgia <span>⌄</span></button>
+        <button class="select-button size-select" type="button">12 <span>⌄</span></button>
+        <span class="toolbar-divider"></span>
+        <div class="toolbar-group format-tools" aria-label="Text formatting">
+          <button class="tool-button bold" type="button" aria-label="Bold">B</button>
+          <button class="tool-button italic" type="button" aria-label="Italic">I</button>
+          <button class="tool-button underline" type="button" aria-label="Underline">U</button>
+        </div>
+        <span class="toolbar-divider"></span>
+        <button class="tool-button align-button" type="button" aria-label="Align left">≡</button>
+        <div class="toolbar-spacer"></div>
+        <span class="zoom-level">100%</span>
+      </section>
+
+      <div class="workspace">
+        <div class="ruler" aria-hidden="true">
+          <span class="ruler-marker"></span>
+          <div class="ruler-numbers"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+        </div>
+
+        <article class="paper" aria-label="Blank document">
+          <div class="paper-meta"><span>PERSONAL NOTES&nbsp; / &nbsp;NO. 004</span><span>14 OCTOBER 1997</span></div>
+          <span class="document-caret" aria-hidden="true"></span>
+          <span class="page-number" aria-hidden="true">1</span>
+          <aside class="stapy-widget" aria-live="polite" aria-atomic="true">
+            <div class="speech-bubble">
+              <p id="stapy-speech">Psst. You’re doing a very convincing job of doing nothing.</p>
+            </div>
+            <div class="stapy-face" data-emotion="happy" role="img" aria-label="Happy Stapy"></div>
+            <span class="widget-caption">STAPY SAYS</span>
+          </aside>
+        </article>
+      </div>
+
+      <footer class="status-bar">
+        <div class="status-left"><span>PAGE 1 OF 1</span><span>0 WORDS</span><span>ENGLISH (US)</span></div>
+        <p class="page-hint"><span class="hint-star">✳</span> Click anywhere to move Stapy. Press a key for a new reaction.</p>
+        <div class="status-right"><span class="status-page-icon">▤</span><span>READY WHEN YOU ARE</span><span class="status-dot"></span></div>
+      </footer>
+    </main>
+
+    <script>
+      const stapy = document.querySelector(".stapy-widget");
+      const face = document.querySelector(".stapy-face");
+      const speech = document.querySelector("#stapy-speech");
+      let audioContext;
+      let elevatorMusicStarted = false;
+
+      function moveStapyToClick(event) {
+        const edgePadding = 16;
+        const left = Math.min(
+          Math.max(event.clientX - stapy.offsetWidth / 2, edgePadding),
+          window.innerWidth - stapy.offsetWidth - edgePadding
+        );
+        const top = Math.min(
+          Math.max(event.clientY - stapy.offsetHeight / 2, edgePadding),
+          window.innerHeight - stapy.offsetHeight - edgePadding
+        );
+
+        stapy.style.left = `${left}px`;
+        stapy.style.top = `${top}px`;
+        stapy.classList.add("is-visible");
+      }
+
+      const reactions = [
+        {
+          emotion: "happy",
+          lines: [
+            "Psst. You’re doing a very convincing job of doing nothing.",
+            "Look at us, making absolutely no plans.",
+            "This quiet moment has excellent vibes.",
+            "I vote we stay right here a little longer.",
+            "You make taking it easy look easy.",
+            "A little pause looks good on you."
+          ]
+        },
+        {
+          emotion: "questioning",
+          lines: [
+            "Was that productivity? I thought we were taking it slow.",
+            "Did you hear that, or was it just a thought?",
+            "Are we working, or just holding the pencil?",
+            "What if the blank page is already finished?",
+            "Is this a break? I’m asking for a friend.",
+            "Do you think the cursor gets lonely?"
+          ]
+        },
+        {
+          emotion: "excited",
+          lines: [
+            "A click! The plot thickens. I can feel it.",
+            "Something happened! Probably! Wonderful!",
+            "I have a good feeling about this little pause.",
+            "Breaking news: we’re still taking it easy!",
+            "The cursor moved! What a day!",
+            "This is my favorite part of the document!"
+          ]
+        },
+        {
+          emotion: "neutral",
+          lines: [
+            "I have updated my opinion. It remains the same.",
+            "Noted. I will continue sitting here.",
+            "The page is still blank. Just keeping you posted.",
+            "A new moment has arrived. It seems fine.",
+            "I have no further comments at this time.",
+            "Everything is exactly as uneventful as expected."
+          ]
+        },
+        {
+          emotion: "tired",
+          lines: [
+            "Whew. All this clicking is really something.",
+            "Can we rest our fingers between clicks?",
+            "I’m going to need a tiny document break.",
+            "That was a lot. I need to sit down.",
+            "Wake me if the page does something exciting.",
+            "Even the cursor could use a little nap."
+          ]
+        },
+        {
+          emotion: "angry",
+          lines: [
+            "Hey! I was reading that perfectly blank space.",
+            "I had that thought first. Probably.",
+            "The cursor keeps blinking at me. Rude.",
+            "Who scheduled all these clicks?",
+            "I was enjoying the silence, you know.",
+            "This page is getting far too much attention."
+          ]
+        }
+      ];
+      let lastReaction = "happy";
+
+      function reactToInteraction() {
+        const availableReactions = reactions.filter(({ emotion }) => emotion !== lastReaction);
+        const reaction = availableReactions[Math.floor(Math.random() * availableReactions.length)];
+        const line = reaction.lines[Math.floor(Math.random() * reaction.lines.length)];
+        lastReaction = reaction.emotion;
+
+        face.dataset.emotion = reaction.emotion;
+        face.setAttribute("aria-label", `${reaction.emotion} Stapy`);
+        speech.textContent = line;
+        stapy.classList.remove("is-reacting");
+        requestAnimationFrame(() => stapy.classList.add("is-reacting"));
+      }
+
+      function playMusicNote(frequency, startTime, duration, volume, waveform = "triangle") {
+        const oscillator = audioContext.createOscillator();
+        const envelope = audioContext.createGain();
+        const endTime = startTime + duration;
+
+        oscillator.type = waveform;
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        envelope.gain.setValueAtTime(0.001, startTime);
+        envelope.gain.exponentialRampToValueAtTime(volume, startTime + 0.015);
+        envelope.gain.exponentialRampToValueAtTime(volume * 0.12, startTime + duration * 0.55);
+        envelope.gain.exponentialRampToValueAtTime(0.001, endTime);
+        oscillator.connect(envelope);
+        envelope.connect(audioContext.destination);
+        oscillator.start(startTime);
+        oscillator.stop(endTime);
+      }
+
+      function startElevatorMusic() {
+        if (elevatorMusicStarted) {
+          return;
+        }
+
+        elevatorMusicStarted = true;
+        const melody = [
+          523.25, 0, 659.25, 783.99,
+          698.46, 659.25, 587.33, 0,
+          493.88, 587.33, 659.25, 0,
+          587.33, 523.25, 493.88, 0
+        ];
+        const bassLine = [130.81, 196, 146.83, 220, 110, 164.81, 98, 146.83];
+        const beatDuration = 0.72;
+        let step = 0;
+
+        function scheduleNextBeat() {
+          if (audioContext.state === "running") {
+            const swungStep = step % 2 === 1;
+            const startTime = audioContext.currentTime + 0.04 + (swungStep ? beatDuration * 0.12 : 0);
+            const note = melody[step % melody.length];
+            if (note) {
+              playMusicNote(note, startTime, beatDuration * (swungStep ? 0.72 : 0.94), 0.015);
+            }
+            if (swungStep) {
+              playMusicNote(
+                bassLine[Math.floor(step / 2) % bassLine.length],
+                startTime,
+                beatDuration * 0.72,
+                0.009,
+                "sine"
+              );
+            }
+
+            step += 1;
+          }
+
+          setTimeout(scheduleNextBeat, beatDuration * 1000);
+        }
+
+        scheduleNextBeat();
+      }
+
+      function playBuzzer() {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          return;
+        }
+
+        audioContext ??= new AudioContextClass();
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+        startElevatorMusic();
+
+        const oscillator = audioContext.createOscillator();
+        const volume = audioContext.createGain();
+        const startTime = audioContext.currentTime;
+
+        oscillator.type = "square";
+        oscillator.frequency.setValueAtTime(175, startTime);
+        oscillator.frequency.exponentialRampToValueAtTime(95, startTime + 0.16);
+        volume.gain.setValueAtTime(0.12, startTime);
+        volume.gain.exponentialRampToValueAtTime(0.001, startTime + 0.18);
+        oscillator.connect(volume);
+        volume.connect(audioContext.destination);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.18);
+      }
+
+      document.addEventListener("click", (event) => {
+        playBuzzer();
+        reactToInteraction();
+        moveStapyToClick(event);
+      });
+      document.addEventListener("keydown", () => {
+        playBuzzer();
+        reactToInteraction();
+      });
+    </script>
+  </body>
+</html>
